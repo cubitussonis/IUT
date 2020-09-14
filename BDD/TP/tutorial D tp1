@@ -1,0 +1,15 @@
+VAR _user BASE RELATION{
+	nickname CHARACTER,
+	pass CHARACTER,
+	email CHARACTER
+} key {nickname};
+
+
+VAR _friendRequest BASE RELATION{
+	requester CHARACTER,
+	target CHARACTER,
+	birth_date CHARACTER
+} 
+
+CONSTRAINT friendRequest_fk_requester _friendRequest{requester} <= _user{nickname};
+CONSTRAINT friendRequest_fk_target _friendRequest{target} <= _user{nickname};
