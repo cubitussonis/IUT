@@ -8,7 +8,7 @@ Groupe : A1
 """
 
 
-from math import sqrt, exp		
+from math import sqrt, exp, sin		
 import random	
 
 
@@ -39,13 +39,22 @@ def integralexp(N):
     return ((N-c)/N)*exp(1)
 
 
+def funcMax(func,a,b):
+    x = (b-a)/1000
+    maxf = 0
+    for i in range(1000):
+        if(func(a+(i*x))>maxf):
+            maxf = func(a+(i*x))
+    return maxf
+
 
 
 def integrale(func,a,b,N):
     c = 0
+    maxf = funcMax(func,a,b)
     for i in range(N):
         x = random.uniform(a,b)	
-        y = random.uniform(a,func(b))
+        y = random.uniform(0,maxf)
         if(func(x) <= y):
             c=c+1
     print(c)
@@ -53,6 +62,7 @@ def integrale(func,a,b,N):
     
 
 
-print("integrale de exp = %f" % integrale(exp,0,1,100000))
+print("integrale de exp = %f" % integrale(sin,0,1,100000))
+
 
 
