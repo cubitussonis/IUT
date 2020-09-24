@@ -58,7 +58,7 @@ def integrale(func,a,b,N):
         if(func(x) <= y):
             c=c+1
     print(c)
-    return ((N-c)/N)*((b-a)*(func(b)-a))
+    return ((N-c)/N)*((b-a)*(func(b)))
     
 
 
