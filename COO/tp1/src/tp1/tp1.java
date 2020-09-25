@@ -176,7 +176,7 @@ public class tp1 {
                     System.out.println(nomd+" \t min: "+salmin+ "\t max: "+salmax+" \t avg: "+salavg+"\t nb emp: "+nbEmp);
                     
                 }*/
-                e  nom  de  chaque  département,  avec  son  nombre  d’employés,  le  salaire  minimum, maximum et moyen dans ce département,     
+                //e  nom  de  chaque  département,  avec  son  nombre  d’employés,  le  salaire  minimum, maximum et moyen dans ce département,     
                 
                 /*___________________________________________________________*/
                 /* les départements n’ayant pas de secrétaire*/
