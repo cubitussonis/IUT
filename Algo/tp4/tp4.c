@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+
 
 typedef char chaine10[11];
 
@@ -247,15 +249,15 @@ int choix = -1;
 
             case 6: printf("\nSaisir le repertoire voulu (1, 2 ou 3) : \n");
                     scanf("%d", &choixRep);
-                    if (choixRep=1)
+                    if (choixRep==1)
                     {
                         RepC=Rep1;
                     }
-                    else if(choixRep=2)
+                    else if(choixRep==2)
                        {
                             RepC=Rep2;
                        }
-                       else if(choixRep=3)
+                       else if(choixRep==3)
                         {
                             RepC=Rep3;
                         }
