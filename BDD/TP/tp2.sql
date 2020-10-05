@@ -137,8 +137,7 @@ EXECUTE PROCEDURE insertComment();
 
 /* function qui check si un post ou un commentaire est modifiable */
 
-
-/*CREATE OR REPLACE FUNCTION modifiablePost() RETURNS TRIGGER AS $body$
+CREATE OR REPLACE FUNCTION modifiableDocument() RETURNS TRIGGER AS $body$
 BEGIN
   PERFORM *
     FROM fb2.comment c
@@ -146,15 +145,35 @@ BEGIN
       IF found 
         THEN RAISE EXCEPTION 'Ce post n est pas modifiable';
       END IF;
+    RETURN NEW;
 END 
 $body$ language plpgsql;
 
-CREATE TRIGGER updatePostTrig BEFORE UPDATE
-ON fb2._post 
+CREATE TRIGGER updateDocTrig BEFORE UPDATE
+ON fb2._document 
 FOR EACH ROW
-EXECUTE PROCEDURE modifiablePost();*/
+EXECUTE PROCEDURE modifiableDocument();
+
+
+
+/*function pour verifier la classe abstraite*/
+
+
+
+/*CREATE CONSTRAINT TRIGGER checkAbstractTri BEFORE INSERT
+ON fb2._document DEFERRABLE
+FOR EACH ROW
+EXECUTE PROCEDURE checkAbstract();*/
+
+
+
+
 
 insert into fb2.post(content,author) values('Lorem ipsum dolor sit amet','Vladimir');
+insert into fb2.post(content,author) values('Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet','Paul');
 insert into fb2.comment(ref,content,author) values(1,'Sed venenatis tellus lectus, vel fermentus purus varius ut','Donald');
---DELETE from fb2._document;
---DELETE from fb2._post;
+insert into fb2.comment(ref,content,author) values(3,'Commentaire sur commenataire','Donald');
+--update fb2._document SET content = 'hello toi' WHERE IDDOC = 1;
+--update fb2._document SET content = 'hello toi' WHERE IDDOC = 2;
+--update fb2._document SET content = 'Test changement de content sur commentaire' WHERE IDDOC = 3;
+--delete from _comment WHERE IDDOC = 5;
