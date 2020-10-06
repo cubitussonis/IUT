@@ -7,8 +7,9 @@ Groupe : A1
 
 """
 import random
+import numpy as np
 
-def ruine(wallet,obj,lance):
+'''def ruine(wallet,obj,lance):
     c = 1
     while (wallet != 0 and wallet != obj and c <= lance):
         piece = random.randint(0,1)
@@ -37,5 +38,30 @@ print(probRuine(1000,ruine,3,6,5))
 print(probRuine(1000,ruine,3,6,24))
 print()
 print(probRuine(1000,ruine,3,6,5))
-print(probRuine(1000,ruine,3,6,24))
-        
+print(probRuine(1000,ruine,3,6,24))'''
+
+
+pn= np.array([[1,1/2,0,0,0,0,0],
+             [0,0,1/2,0,0,0,0],
+             [0,1/2,0,1/2,0,0,0],
+             [0,0,1/2,0,1/2,0,0],
+             [0,0,0,1/2,0,1/2,0],
+             [0,0,0,0,1/2,0,0],
+             [0,0,0,0,0,1/2,1]])
+
+p0 = np.array([[0],[0],[0],[1],[0],[0],[0]])
+
+
+def ruine (wallet,mat,obj,n):
+    
+    for i in range(n):
+        wallet = mat.dot(wallet)
+        #print(wallet)
+    
+    return wallet
+
+
+print(ruine(p0,pn,6,100))
+
+       
+    
