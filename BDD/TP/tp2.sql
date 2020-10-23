@@ -1,7 +1,3 @@
--- Marius Longeanie
--- A1
--- TP2
-
 drop schema if exists fb2 cascade;
 create schema fb2;
 
@@ -59,6 +55,7 @@ Vladimir	Donald
 Marie	Donald
 \.
 
+--- 1) Proposez une extension au schéma de la base de données du TP1 prenant en compte la description précédente ainsi que toutes les contraintes que vous jugerez pertinentes, le tout au sein d'un schéma 'fb2".
 
 CREATE TABLE _document(
   IDDOC         serial NOT NULL,
@@ -80,49 +77,48 @@ CREATE TABLE _post(
 
 CREATE TABLE _comment(
   IDDOC      INT NOT NULL,
-  ref        INT NOT NULL check(IDDOC <> ref),
+  ref        INT NOT NULL,
   CONSTRAINT comment_pk PRIMARY KEY (IDDOC),
   CONSTRAINT comment_document_fk1 FOREIGN KEY (ref) REFERENCES _document (IDDOC),
-  CONSTRAINT comment_document_fk2 FOREIGN KEY (IDDOC) REFERENCES _document ON UPDATE CASCADE ON DELETE CASCADE
-  
+  CONSTRAINT comment_document_fk2 FOREIGN KEY (IDDOC) REFERENCES _document ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT comment_document_check1 CHECK (IDDOC <> ref)
 );
+
+--- 2) Définissez la vue "post" matérialisant l'ensemble des billets accompagnés de leurs caractéristiques.
 
 CREATE OR REPLACE VIEW fb2.post AS
 SELECT * FROM _document NATURAL JOIN _post;
+
+---3) Définissez la vue "comment" matérialisant l'ensemble des commentaires accompagnés de leurs caractéristiques.
 
 CREATE OR REPLACE VIEW fb2.comment AS
 SELECT * FROM _document NATURAL JOIN _comment;
 
 
-/* Fonction insertPost */
-
+--- 4) Rendez possibles les opérations suivantes.
 
 CREATE OR REPLACE FUNCTION insertPost() RETURNS TRIGGER AS $body$
 DECLARE
   id int;
 BEGIN
-    INSERT INTO _document(content,author) VALUES
-    (NEW.content,NEW.author)RETURNING IDDOC INTO id;
+    INSERT INTO _document(content,author) VALUES (NEW.content,NEW.author)RETURNING IDDOC INTO id;
     INSERT INTO _post VALUES (id);
   RETURN NEW ;
 END;
 $body$ language plpgsql;
 
---DROP TRIGGER IF EXISTS insertPostTrig ON postView;
+
 CREATE TRIGGER insertPostTrig INSTEAD OF INSERT
 ON fb2.post
 FOR EACH ROW
 EXECUTE PROCEDURE insertPost();
 
 
-/* Fonction insertComment */
-
 CREATE OR REPLACE FUNCTION insertComment() RETURNS TRIGGER AS $body$
 DECLARE
   id int;
 BEGIN
-    INSERT INTO _document(content,author) VALUES
-    (NEW.content,NEW.author)RETURNING IDDOC INTO id;
+    INSERT INTO _document(content,author) VALUES (NEW.content,NEW.author)RETURNING IDDOC INTO id;
     INSERT INTO _comment VALUES (id,NEW.ref);
   RETURN NEW ;
 END;
@@ -135,7 +131,8 @@ FOR EACH ROW
 EXECUTE PROCEDURE insertComment();
 
 
-/* function qui check si un post ou un commentaire est modifiable */
+
+--- 5) Le contenu d'un document (post ou comment) n'est plus modifiable dès lors qu'il a été commenté. Réalisez cette contrainte.
 
 CREATE OR REPLACE FUNCTION modifiableDocument() RETURNS TRIGGER AS $body$
 BEGIN
@@ -143,7 +140,7 @@ BEGIN
     FROM fb2.comment c
     WHERE c.ref = OLD.IDDOC ;
       IF found 
-        THEN RAISE EXCEPTION 'Ce post n est pas modifiable';
+        THEN RAISE EXCEPTION 'Ce document n est pas modifiable';
       END IF;
     RETURN NEW;
 END 
@@ -156,24 +153,27 @@ EXECUTE PROCEDURE modifiableDocument();
 
 
 
-/*function pour verifier la classe abstraite*/
-
-
-
-/*CREATE CONSTRAINT TRIGGER checkAbstractTri BEFORE INSERT
-ON fb2._document DEFERRABLE
-FOR EACH ROW
-EXECUTE PROCEDURE checkAbstract();*/
-
-
-
-
-
+--ajouter un post 
 insert into fb2.post(content,author) values('Lorem ipsum dolor sit amet','Vladimir');
+
+-- ajouter un nouveau post
 insert into fb2.post(content,author) values('Lorem ipsum dolor sit amet Lorem ipsum dolor sit amet','Paul');
+
+--insert commentaire qui pointe vers le post d'id 1
 insert into fb2.comment(ref,content,author) values(1,'Sed venenatis tellus lectus, vel fermentus purus varius ut','Donald');
+
+--test si la constaint comment_document_check1 fonctionne bien
+insert into fb2.comment(ref,content,author) values(4,'Sed venenatis tellus Lorem ipsum dolor sit','Donald');
+
+-- ajouter un commentaire qui point sur le commentaire d'id 3
 insert into fb2.comment(ref,content,author) values(3,'Commentaire sur commenataire','Donald');
---update fb2._document SET content = 'hello toi' WHERE IDDOC = 1;
---update fb2._document SET content = 'hello toi' WHERE IDDOC = 2;
---update fb2._document SET content = 'Test changement de content sur commentaire' WHERE IDDOC = 3;
---delete from _comment WHERE IDDOC = 5;
+
+-- essayer de modifier le post d'id 1 qui a deja un commentaire  
+update fb2._document SET content = 'hello toi' WHERE IDDOC = 1;
+
+-- modifier le post d'id 2 qui n'a pas de commentaire
+update fb2._document SET content = 'hello toi' WHERE IDDOC = 2;
+
+--essayer de modifier le commentaire d'id 3 qui a un commentaire
+update fb2._document SET content = 'Test changement de content sur commentaire' WHERE IDDOC = 3;
+
